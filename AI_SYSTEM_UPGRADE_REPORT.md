@@ -1,5 +1,24 @@
 # AI System Upgrade Report
 
+## Round 2 (this pass)
+
+After round 1 was committed and pushed (PR #1), a second pass looked for
+issues the first pass missed. Findings and changes:
+
+- **Audited markdown links across all non-skill-creator content** — every `[text](path)` link in `SKILL.md` files and root docs resolves. No new broken references found.
+- **Audited file extensions referenced from SKILL.md** — only `.md`, `.pptx`, `.py` are actually used; the existing validator regex already covers them. No regex gap.
+- **Found 3 real validator weaknesses, fixed:**
+  1. `py_compile` errors were silenced by `2>/dev/null`, so a syntax error told you "py_compile error in tracked .py files" with no filename. Stderr is now allowed through and the message says `(see stderr above)`.
+  2. No check that `scripts/known-gaps.txt` stays honest — a gap filled by an upstream resync would leave a stale WARN forever. Added an `==> known-gaps.txt freshness` step that warns when a listed path now exists.
+  3. `README.md` did not state that `pyyaml` is needed for YAML checks. Added a one-line prerequisite.
+- Re-verified `bash scripts/check.sh` exits 0 with one expected WARN (`template.pptx` known gap).
+
+Round 2 changes: `README.md` (+~4 lines), `scripts/check.sh` (+~20 lines, no behaviour regression).
+
+---
+
+## Round 1
+
 ## Base
 
 - Branch: `claude/repo-optimization-9KUIY`

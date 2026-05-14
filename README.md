@@ -32,9 +32,14 @@ scripts/known-gaps.txt      paths referenced in docs but intentionally absent
 bash scripts/check.sh
 ```
 
+Requires `python3`. YAML checking additionally needs `pyyaml`
+(`pip install pyyaml`); without it the YAML step is skipped with a note rather
+than silently passing.
+
 The validator is read-only. It checks every tracked JSON/YAML file for syntax,
-compiles every tracked Python file, and verifies that paths referenced from
-`SKILL.md` files actually exist (warnings for entries in `known-gaps.txt`).
+compiles every tracked Python file, verifies that paths referenced from
+`SKILL.md` files actually exist (warnings for entries in `known-gaps.txt`), and
+flags stale `known-gaps.txt` entries where the gap has been filled.
 
 ## What this repo is not
 

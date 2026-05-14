@@ -3,11 +3,17 @@
 #
 # Verifies that:
 #   1. Every tracked .json file is valid JSON.
-#   2. Every tracked .yaml/.yml file is valid YAML.
+#   2. Every tracked .yaml/.yml file is valid YAML (requires pyyaml; degrades
+#      gracefully with a note if pyyaml is absent).
 #   3. Every tracked .py file compiles.
 #   4. Docs do not reference paths that no longer exist
 #      (best-effort; only checks references/, assets/, scripts/ relative paths
 #       inside SKILL.md files, ignoring skill-creator examples).
+#   5. scripts/known-gaps.txt only lists paths that are still missing.
+#
+# Requirements:
+#   - python3
+#   - pyyaml (optional, for step 2): pip install pyyaml
 #
 # Usage: bash scripts/check.sh
 #
@@ -53,12 +59,14 @@ fi
 
 echo "==> Python compile"
 # compileall returns non-zero only on failure; collect tracked .py files.
-py_files=$(git ls-files '*.py' || true)
+py_files=$(git ls-files '*.py')
 if [ -n "$py_files" ]; then
-  if python3 -m py_compile $py_files 2>/dev/null; then
+  # Run py_compile letting stderr through, so a failure tells you which file.
+  # shellcheck disable=SC2086  # intentional word-splitting on $py_files
+  if python3 -m py_compile $py_files; then
     ok "$(echo "$py_files" | wc -l | tr -d ' ') file(s) compiled"
   else
-    bad "py_compile error in tracked .py files"
+    bad "py_compile error in tracked .py files (see stderr above)"
   fi
 else
   note "no .py files tracked"
@@ -93,6 +101,20 @@ while IFS= read -r skill; do
     fi
   done < <(grep -oE '(references|assets|scripts)/[a-zA-Z0-9_./-]+\.(md|py|txt|pptx|xlsx|png|json|yaml)' "$skill" | sort -u)
 done < <(git ls-files '*SKILL.md')
+
+echo "==> known-gaps.txt freshness"
+# A "known gap" should still be missing. If a listed path now exists,
+# remove it from known-gaps.txt to keep the WARN list honest.
+if [ -f "$known_gaps_file" ]; then
+  while IFS= read -r gap; do
+    case "$gap" in
+      ''|'#'*) continue ;;
+    esac
+    if [ -e "$gap" ]; then
+      printf 'WARN stale entry in known-gaps.txt: %s now exists\n' "$gap"
+    fi
+  done < "$known_gaps_file"
+fi
 
 echo
 if [ "$fail" -eq 0 ]; then
