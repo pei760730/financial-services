@@ -1,0 +1,8 @@
+# Paths referenced in docs/SKILL.md that are intentionally absent from this
+# mirror (typically binary assets or orchestration scripts that live upstream
+# only). Listed one path per line, relative to the repo root.
+#
+# When you sync from upstream and an asset finally lands, remove its line.
+# See UPSTREAM.md for the upstream source.
+
+learn-from-anthropic/equity-research-pipeline/4-financial-analysis/skills/ppt-template-creator/assets/template.pptx

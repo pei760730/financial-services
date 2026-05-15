@@ -79,6 +79,22 @@ rsync -a --delete \
 > 那種情況改用 `diff` 看清楚再手動 merge，或先 commit 自己的修改、再用 `git checkout -p`
 > 挑揀上游的改動。
 
+## 已知缺漏（Known gaps from upstream）
+
+下列檔案在上游 SKILL.md / README 內被引用，但目前的本機鏡像沒有複製進來
+（多半是二進位資產或 orchestration script）。`scripts/check.sh` 會把它們列為
+WARN 而不是 FAIL，名單放在 `scripts/known-gaps.txt`：
+
+- `4-financial-analysis/skills/ppt-template-creator/assets/template.pptx` — 簡報模板，二進位檔。
+- `1-market-researcher/scripts/orchestrate.py`
+- `3-earnings-reviewer/scripts/orchestrate.py`
+- `5-model-builder/scripts/orchestrate.py`
+
+`orchestrate.py` 是 cookbook 在 Anthropic 雲端執行時用的協調腳本，本機學習用不到，
+故未複製。`template.pptx` 同步時若想補進來，從上游
+`plugins/vertical-plugins/financial-analysis/skills/ppt-template-creator/assets/`
+拉一份再從 `scripts/known-gaps.txt` 移除對應行即可。
+
 ## License 注意事項
 
 上游採 MIT License。你保留本資料夾結構即視為合理使用，

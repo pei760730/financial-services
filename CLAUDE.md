@@ -63,3 +63,52 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+## Repo-specific rules for this mirror
+
+This repo is a **learning mirror** of `anthropics/financial-services`. It is
+not a product. Read `UPSTREAM.md` before editing anything under
+`learn-from-anthropic/`.
+
+### Scope
+
+- Anything under `learn-from-anthropic/equity-research-pipeline/` is
+  upstream-imported content. Treat it as read-mostly: do not refactor, rename,
+  or "improve" it, because that breaks resync (`rsync -a --delete` from upstream
+  will overwrite your changes anyway).
+- Root files (`README.md`, `LEARNING_PATH.md`, `UPSTREAM.md`, `CLAUDE.md`,
+  `scripts/`, `.gitignore`) are local-only and safe to edit.
+
+### Validation
+
+The single validation command is:
+
+```bash
+bash scripts/check.sh
+```
+
+It checks JSON/YAML syntax, Python compilation, and SKILL.md path references.
+Known-missing upstream files are listed in `scripts/known-gaps.txt` and surface
+as WARN, not FAIL. Run it after any change.
+
+### Definition of done
+
+A change is done when:
+
+1. `bash scripts/check.sh` exits 0.
+2. If you modified anything under `learn-from-anthropic/`, you also explained
+   in your reply why upstream-mirror divergence is justified.
+3. If you added a new doc reference, the referenced file exists or is listed in
+   `scripts/known-gaps.txt`.
+
+### Do not, without explicit instruction
+
+- Modify files under `learn-from-anthropic/equity-research-pipeline/`.
+- Add runtime/CI infrastructure (GitHub Actions, Docker, deploy scripts).
+- Install new dependencies or change `scripts/check.sh` to require non-stdlib
+  packages beyond `pyyaml`.
+- Delete `scripts/known-gaps.txt` entries to "make checks pass"; the right fix
+  is to either resync from upstream or add a `references/...` note.
+- Commit, push, branch, or open PRs unless the user explicitly asks.
